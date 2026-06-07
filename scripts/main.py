@@ -44,7 +44,6 @@ def main(
     # )
     # client.run_script(script)
 
-    # Example 2: multi-contaminant dilution — one script, no recalibration
     print("Well 1:")
     script = multi_contaminant_transfer(
         well_index=1,
