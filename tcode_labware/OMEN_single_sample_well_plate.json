@@ -1,0 +1,83 @@
+{
+  "tags": [],
+  "named_tags": {
+    "name": "omen_double_sample_bottle_well",
+    "brand": "omen",
+    "model": "omen_double_sample_bottle_well.obj",
+    "kind": "WELL_PLATE"
+  },
+  "x_length": {
+    "type": "ValueWithUnits",
+    "magnitude": 127.76,
+    "units": "mm"
+  },
+  "y_length": {
+    "type": "ValueWithUnits",
+    "magnitude": 85.48,
+    "units": "mm"
+  },
+  "z_length": {
+    "type": "ValueWithUnits",
+    "magnitude": 52.5,
+    "units": "mm"
+  },
+  "type": "WellPlate",
+  "grid": {
+    "type": "Grid",
+    "row_count": 1,
+    "column_count": 1,
+    "row_pitch": {
+      "type": "ValueWithUnits",
+      "magnitude": 9.0,
+      "units": "mm"
+    },
+    "column_pitch": {
+      "type": "ValueWithUnits",
+      "magnitude": 9.0,
+      "units": "mm"
+    },
+    "row_offset": {
+      "type": "ValueWithUnits",
+      "magnitude": 0.0,
+      "units": "mm"
+    },
+    "column_offset": {
+      "type": "ValueWithUnits",
+      "magnitude": 0.0,
+      "units": "mm"
+    }
+  },
+  "well": {
+    "type": "Well",
+    "depth": {
+      "type": "ValueWithUnits",
+      "magnitude": 50.0,
+      "units": "mm"
+    },
+    "shape": {
+      "type": "Circle",
+      "diameter": {
+        "type": "ValueWithUnits",
+        "magnitude": 60.0,
+        "units": "mm"
+      }
+    },
+    "bottom_shape": {
+      "type": "Flat"
+    },
+    "min_volume": {
+      "type": "ValueWithUnits",
+      "magnitude": 1.0,
+      "units": "uL"
+    },
+    "max_volume": {
+      "type": "ValueWithUnits",
+      "magnitude": 250000,
+      "units": "uL"
+    },
+    "well_tags": [],
+    "well_named_tags": {}
+  },
+  "lid_offset": null,
+  "lid": null
+}

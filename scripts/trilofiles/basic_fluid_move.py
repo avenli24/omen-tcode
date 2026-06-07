@@ -67,7 +67,7 @@ def main(
         tc.CREATE_LABWARE(
             robot_id=robot_id,
             description=load_labware("costar_3603_plate"),
-            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_5"),
+            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_4"),
         )
     )
     script.commands.append(
@@ -81,14 +81,14 @@ def main(
         tc.CREATE_LABWARE(
             robot_id=robot_id,
             description=load_labware("mtcbiotech_4_channel_trough"),
-            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_6"),
+            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_3"),
         )
     )
     script.commands.append(
         tc.CREATE_LABWARE(
             robot_id=robot_id,
             description=load_labware("3d_printed_trash_can"),
-            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_11"),
+            holder=tc.LabwareHolderName(robot_id=robot_id, name="DeckSlot_1"),
         )
     )
 
