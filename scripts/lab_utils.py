@@ -1,4 +1,4 @@
-"""Shared laboratory utility functions"""
+"""Shared laboratory utility functions for TCode scripts."""
 
 
 def deck_slot(n: int) -> str:
@@ -17,6 +17,25 @@ def tip_box_name_for_volume_ul(volume_ul: int) -> str:
                 "20, 100, 200, 250, 300, 1000 (uL). "
                 f"Got: {volume_ul}"
             )
+
+
+def select_pipette_volume_ul(volume_ul: float) -> int:
+    """Select the smallest suitable pipette size for a given transfer volume.
+
+    Available sizes: 20, 300, 1000 uL.
+
+    Args:
+        volume_ul: Volume to transfer in microlitres.
+
+    Returns:
+        Pipette volume in uL (20, 300, or 1000).
+    """
+    if volume_ul <= 20:
+        return 20
+    elif volume_ul <= 300:
+        return 300
+    else:
+        return 1000
 
 
 def calculate_contaminant_volume(

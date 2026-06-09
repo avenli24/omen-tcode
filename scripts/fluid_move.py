@@ -19,9 +19,10 @@ from tcode_api.utilities import (
     ul_per_s,
 )
 from script_setup import ScriptIds, setup_script
+from lab_utils import select_pipette_volume_ul
 
 
-def append_transfer_commands(
+def fluid_transfer_commands(
     script: tc.TCodeScript,
     ids: ScriptIds,
     well_index: int,
@@ -48,12 +49,7 @@ def append_transfer_commands(
     blowout_volume = ul(blowout_volume_ul)
 
     # Calculate cycles needed
-    usable_volume_ul = pipette_volume_ul - blowout_volume_ul
-    if usable_volume_ul <= 0:
-        raise ValueError(
-            f"blowout_volume_ul ({blowout_volume_ul}) must be less than "
-            f"pipette_volume_ul ({pipette_volume_ul})"
-        )
+    usable_volume_ul = pipette_volume_ul
 
     remaining = transfer_volume_ul
     cycle_volumes = []
@@ -62,11 +58,19 @@ def append_transfer_commands(
         cycle_volumes.append(cycle_vol)
         remaining -= cycle_vol
 
+    # Look up correct tip box for this pipette volume
+    if pipette_volume_ul not in ids.tip_box_ids:
+        raise ValueError(
+            f"No tip box registered for pipette_volume_ul={pipette_volume_ul}. "
+            f"Available: {list(ids.tip_box_ids.keys())}"
+        )
+    tip_box_id = ids.tip_box_ids[pipette_volume_ul]
+
     # Pick up tip
     script.commands.append(
         tc.PICK_UP_PIPETTE_TIP(
             robot_id=ids.robot_id,
-            location=location_as_labware_index(ids.tip_box_id, tip_index, tc.WellPartType.TOP),
+            location=location_as_labware_index(tip_box_id, tip_index, tc.WellPartType.TOP),
         )
     )
 
@@ -137,7 +141,7 @@ def append_transfer_commands(
     script.commands.append(
         tc.PUT_DOWN_PIPETTE_TIP(
             robot_id=ids.robot_id,
-            location=location_as_labware_index(ids.tip_box_id, tip_index, tc.WellPartType.TOP),
+            location=location_as_labware_index(tip_box_id, tip_index, tc.WellPartType.TOP),
         )
     )
 
@@ -147,7 +151,7 @@ def fluid_transfer(
     trough_index: int,
     transfer_volume_ul: float,
     tip_index: int = 0,
-    pipette_volume_ul: int = 300,
+    pipette_volume_ul: int | None = None,
     tip_box_deck_slot: int = 2,
     well_plate_name: str = "omen_double_sample_well_plate",
     well_plate_deck_slot: int = 4,
@@ -157,14 +161,14 @@ def fluid_transfer(
     """Build a complete standalone fluid transfer script.
 
     For single transfers. For multiple transfers, use setup_script() and
-    append_transfer_commands() directly to avoid recalibration between transfers.
+    fluid_transfer_commands() directly to avoid recalibration between transfers.
 
     Args:
         well_index: Destination well on the plate (0-based, row-major order).
         trough_index: Source well on the trough to aspirate from (0-3).
         transfer_volume_ul: Volume to transfer in microlitres.
         tip_index: Which tip slot to pick up from (0-based, row-major order). Default 0.
-        pipette_volume_ul: Pipette max volume in uL; also selects matching tip box. Default 300.
+        pipette_volume_ul: Pipette max volume in uL. If None, auto-selected from volume. Default None.
         tip_box_deck_slot: Deck slot number holding the tip box. Default 2.
         well_plate_name: Labware JSON name of the destination well plate.
         well_plate_deck_slot: Deck slot number holding the destination well plate. Default 4.
@@ -174,16 +178,18 @@ def fluid_transfer(
     script = tc.TCodeScript.new(
         name=f"Fluid Transfer to well {well_index} ({transfer_volume_ul}uL)",
     )
+    if pipette_volume_ul is None:
+        pipette_volume_ul = select_pipette_volume_ul(transfer_volume_ul)
     ids = setup_script(
         script,
         pipette_volume_ul=pipette_volume_ul,
-        tip_box_deck_slot=tip_box_deck_slot,
+        tip_box_slots={pipette_volume_ul: tip_box_deck_slot},
         well_plate_name=well_plate_name,
         well_plate_deck_slot=well_plate_deck_slot,
         trough_deck_slot=trough_deck_slot,
     )
     script.commands.append(tc.RETRIEVE_TOOL(robot_id=ids.robot_id, id=ids.pipette_id))
-    append_transfer_commands(
+    fluid_transfer_commands(
         script,
         ids,
         well_index=well_index,
@@ -195,3 +201,34 @@ def fluid_transfer(
     )
     script.commands.append(tc.RETURN_TOOL(robot_id=ids.robot_id))
     return script
+
+
+@plac.annotations(
+    servicer_url=servicer_url_annotation,
+    output_file_path=output_file_path_annotation,
+)
+def main(
+    servicer_url: str = DEFAULT_SERVICER_URL,
+    output_file_path: pathlib.Path | None = None,
+) -> None:
+    script = fluid_transfer(
+        well_index=1,
+        trough_index=0,
+        transfer_volume_ul=150,
+        tip_index=0,
+        pipette_volume_ul=300,
+        tip_box_deck_slot=2,
+        well_plate_name="omen_double_sample_well_plate",
+        well_plate_deck_slot=4,
+    )
+
+    if output_file_path is not None:
+        with output_file_path.open("w") as f:
+            script.write(f)
+
+    client = TCodeServicerClient(servicer_url=servicer_url)
+    client.run_script(script)
+
+
+if __name__ == "__main__":
+    plac.call(main)
