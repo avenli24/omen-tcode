@@ -30,12 +30,13 @@ def select_pipette_volume_ul(volume_ul: float) -> int:
     Returns:
         Pipette volume in uL (20, 300, or 1000).
     """
-    if volume_ul <= 20:
-        return 20
-    elif volume_ul <= 300:
+    # if volume_ul <= 20:
+    #     return 20
+    if volume_ul <= 300:
         return 300
     else:
-        return 1000
+        return 300  # TODO: return 1000 once 1000uL pipette is available
+        # return 1000
 
 
 def calculate_contaminant_volume(

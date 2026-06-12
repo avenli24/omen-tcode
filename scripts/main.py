@@ -30,9 +30,9 @@ DILUENT_TIP_BOX_SLOT = 2
 TROUGH_DECK_SLOT     = 3
 
 TIP_BOX_SLOTS = {
-    #20:   5,
+    # 20:   5,
     300:  2,
-    #1000: 6,
+    # 1000: 6,
 }
 
 
